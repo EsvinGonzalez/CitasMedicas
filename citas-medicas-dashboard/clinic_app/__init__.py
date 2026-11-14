@@ -1,0 +1,1 @@
+"""Aplicación clínica Flask."""

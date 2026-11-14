@@ -1,0 +1,28 @@
+# Python environments and generated files
+**/.venv/
+**/.venv-runtime/
+**/__pycache__/
+*.py[cod]
+
+# JavaScript dependencies and build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+
+# Local configuration and SQLite data
+**/.env
+**/.env.local
+**/.env.*.local
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated academic reports and temporary documentation
+citas-medicas-dashboard/docs/.reportgen/
+citas-medicas-dashboard/docs/.build_report.py
+citas-medicas-dashboard/docs/_informe_exportacion.html
+citas-medicas-dashboard/docs/*.pdf
+citas-medicas-dashboard/docs/*.docx
+
+# Configuración local de Visual Studio Code
+.vscode/

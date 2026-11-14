@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clínica San José — Panel de Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=6) }}">
+</head>
+<body>
+
+<div class="app-shell">
+  {% include 'sidebar.html' %}
+
+  <div class="sheet">
+
+    <header class="chart-header">
+      <svg class="vitals-line" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+        <path class="vitals-path" d="M0,30 L140,30 L165,30 L180,8 L200,52 L220,30 L260,30
+          L420,30 L445,30 L460,8 L480,52 L500,30 L540,30
+          L700,30 L725,30 L740,8 L760,52 L780,30 L820,30
+          L980,30 L1005,30 L1020,8 L1040,52 L1060,30 L1200,30" />
+      </svg>
+
+      <div class="chart-header__row">
+        <div class="clinic-id">
+          <span class="clinic-id__eyebrow">Expediente operativo N.º 001</span>
+          <h1>Clínica San José</h1>
+          <p class="clinic-id__sub">Panel de control — Gestión de citas médicas</p>
+        </div>
+
+        <div class="chart-header__meta">
+          <div class="meta-block">
+            <span class="meta-block__label">Fecha del sistema</span>
+            <span class="meta-block__value" id="fecha-actual">—</span>
+          </div>
+          <div class="meta-block">
+            <span class="meta-block__label">Estado</span>
+            <span class="meta-block__value status-live"><i></i>En línea</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="period-selector" role="tablist" aria-label="Periodo de análisis">
+        <button class="period-btn" data-dias="7">7 días</button>
+        <button class="period-btn is-active" data-dias="30">30 días</button>
+        <button class="period-btn" data-dias="90">90 días</button>
+        <a class="period-btn period-btn--appointment" href="/citas">+ Agregar nueva cita</a>
+        <a class="period-btn" id="btn-export-pdf" href="/api/reportes/exportar.pdf?dias=30">PDF</a>
+        <a class="period-btn" id="btn-export-csv" href="/api/reportes/exportar.csv?dias=30">Excel</a>
+      </nav>
+    </header>
+
+    <section class="vitals-strip" aria-label="Indicadores clave">
+      <div class="vital-card">
+        <span class="vital-card__label">Citas hoy</span>
+        <span class="vital-card__value" id="kpi-citas-hoy">—</span>
+        <span class="vital-card__unit">consultas agendadas</span>
+      </div>
+      <div class="vital-card">
+        <span class="vital-card__label">Pendientes</span>
+        <span class="vital-card__value" id="kpi-citas-pendientes">—</span>
+        <span class="vital-card__unit">próximas confirmadas</span>
+      </div>
+      <div class="vital-card vital-card--alert">
+        <span class="vital-card__label">Inasistencia</span>
+        <span class="vital-card__value" id="kpi-tasa-inasistencia">—<small>%</small></span>
+        <span class="vital-card__unit">del periodo</span>
+      </div>
+      <div class="vital-card vital-card--gold">
+        <span class="vital-card__label">Ingresos</span>
+        <span class="vital-card__value" id="kpi-ingresos">—</span>
+        <span class="vital-card__unit">del periodo</span>
+      </div>
+      <div class="vital-card">
+        <span class="vital-card__label">Médicos activos</span>
+        <span class="vital-card__value" id="kpi-medicos">—</span>
+        <span class="vital-card__unit">en plantilla</span>
+      </div>
+      <div class="vital-card">
+        <span class="vital-card__label">Pacientes</span>
+        <span class="vital-card__value" id="kpi-pacientes">—</span>
+        <span class="vital-card__unit">registrados en total</span>
+      </div>
+    </section>
+
+    <section class="dashboard-row">
+      <div class="panel panel--wide upcoming-panel">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Próximas citas</span>
+          <h2>Agenda del día</h2>
+        </header>
+        <div class="panel__body">
+          <div class="upcoming-list" id="agenda-hoy">
+            <p class="tabla-vacia">Cargando agenda…</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel calendar-panel">
+        <div class="calendar-panel__header">
+          <span class="calendar-panel__label">Calendario</span>
+          <div class="calendar-nav">
+            <button type="button" id="calendar-prev" aria-label="Mes anterior">‹</button>
+            <span id="calendar-month-label" class="calendar-month-label">Agosto</span>
+            <button type="button" id="calendar-next" aria-label="Mes siguiente">›</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid" aria-label="Calendario mensual">
+          <span class="calendar-week">L</span>
+          <span class="calendar-week">M</span>
+          <span class="calendar-week">M</span>
+          <span class="calendar-week">J</span>
+          <span class="calendar-week">V</span>
+          <span class="calendar-week">S</span>
+          <span class="calendar-week">D</span>
+        </div>
+
+        <div class="calendar-legend">
+          <span><i class="legend-dot legend-dot--confirmada"></i>Confirmadas</span>
+          <span><i class="legend-dot legend-dot--completada"></i>Completadas</span>
+          <span><i class="legend-dot legend-dot--cancelada"></i>Canceladas</span>
+          <span><i class="legend-dot legend-dot--no-asistio"></i>No asistió</span>
+        </div>
+      </aside>
+    </section>
+
+    <main class="grid">
+
+      <section class="panel panel--wide">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Tendencia · citas por día</span>
+          <h2>Volumen de citas</h2>
+        </header>
+        <div class="panel__body">
+          <canvas id="chart-tendencia" height="90"></canvas>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Distribución</span>
+          <h2>Citas por especialidad</h2>
+        </header>
+        <div class="panel__body">
+          <canvas id="chart-especialidad" height="220"></canvas>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Participación</span>
+          <h2>Especialidades (torta)</h2>
+        </header>
+        <div class="panel__body">
+          <canvas id="chart-torta" height="220"></canvas>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Finanzas · últimos meses</span>
+          <h2>Ingresos mensuales</h2>
+        </header>
+        <div class="panel__body">
+          <canvas id="chart-ingresos" height="220"></canvas>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Carga asistencial</span>
+          <h2>Médicos más solicitados</h2>
+        </header>
+        <div class="panel__body">
+          <ul class="ranking" id="ranking-medicos"></ul>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Calidad de servicio</span>
+          <h2>Tasa de inasistencia mensual</h2>
+        </header>
+        <div class="panel__body">
+          <canvas id="chart-inasistencia" height="220"></canvas>
+        </div>
+      </section>
+
+      <section class="panel panel--wide">
+        <header class="panel__head">
+          <span class="panel__eyebrow">Registro</span>
+          <h2>Citas recientes</h2>
+        </header>
+        <div class="panel__body panel__body--table">
+          <table class="citas-table">
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Médico</th>
+                <th>Especialidad</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-citas">
+              <tr><td colspan="6" class="tabla-vacia">Cargando registros…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="chart-footer">
+      <span>Sistema de Gestión de Citas Médicas — Clínica San José</span>
+      <span>Datos de demostración generados automáticamente</span>
+    </footer>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js', v=6) }}"></script>
+</body>
+</html>

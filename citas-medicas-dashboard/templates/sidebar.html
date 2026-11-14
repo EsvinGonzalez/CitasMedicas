@@ -1,0 +1,78 @@
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand__mark">SJ</div>
+    <div class="brand__text">
+      <span>Clínica San José</span>
+      <small>Centro médico</small>
+    </div>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Navegación principal">
+    <div class="nav-group">
+      <span class="nav-group__label">General</span>
+      <a class="nav-link{% if seccion == 'dashboard' %} is-active{% endif %}" href="/">Dashboard</a>
+      <a class="nav-link{% if seccion == 'pacientes' %} is-active{% endif %}" href="/pacientes">Pacientes</a>
+      <a class="nav-link{% if seccion == 'citas' %} is-active{% endif %}" href="/citas">Citas</a>
+      {% if session.get('rol') == 'paciente' %}
+      <a class="nav-link" href="/agendar-cita">Agendar mi cita</a>
+      {% endif %}
+    </div>
+    <div class="nav-group">
+      <span class="nav-group__label">Paciente</span>
+      <a class="nav-link{% if seccion == 'expedientes' %} is-active{% endif %}" href="/expedientes">Expediente</a>
+      <a class="nav-link{% if seccion == 'historial' %} is-active{% endif %}" href="/historial">Historial</a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group__label">Operación</span>
+      <a class="nav-link{% if seccion == 'medicos' %} is-active{% endif %}" href="/medicos">Médicos</a>
+      <a class="nav-link{% if seccion == 'especialidades' %} is-active{% endif %}" href="/especialidades">Especialidades</a>
+      <a class="nav-link{% if seccion == 'recetas' %} is-active{% endif %}" href="/recetas">Recetas</a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group__label">Administración</span>
+      <a class="nav-link{% if seccion == 'facturacion' %} is-active{% endif %}" href="/facturacion">Facturación</a>
+      <a class="nav-link{% if seccion == 'pagos' %} is-active{% endif %}" href="/pagos">Pagos</a>
+      <a class="nav-link{% if seccion == 'reportes' %} is-active{% endif %}" href="/reportes">Reportes</a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group__label">Seguridad</span>
+      <a class="nav-link{% if seccion == 'auditoria' %} is-active{% endif %}" href="/auditoria">Auditoría</a>
+      <a class="nav-link{% if seccion == 'seguridad' %} is-active{% endif %}" href="/seguridad">2FA / Acceso</a>
+      <a class="nav-link{% if seccion == 'notificaciones' %} is-active{% endif %}" href="/notificaciones">Notificaciones</a>
+    </div>
+    <div class="nav-group nav-group--user">
+      <span class="nav-group__label">Cuenta</span>
+      <a class="nav-link{% if seccion == 'usuario' %} is-active{% endif %}" href="/usuario">Usuario</a>
+      <a class="nav-link" href="/logout">Cerrar sesión</a>
+    </div>
+  </nav>
+
+  <div class="sidebar__footer">
+    <div class="user-pill">
+      <span class="user-pill__dot"></span>
+      <div>
+        <strong>{{ user }}</strong>
+        <small>Sesión activa</small>
+      </div>
+    </div>
+  </div>
+<script>
+(() => {
+  const nav = document.querySelector('.sidebar__nav');
+  if (!nav) return;
+  const navY = sessionStorage.getItem('clinic-sidebar-scroll');
+  const pageY = sessionStorage.getItem('clinic-page-scroll');
+  if (navY !== null) nav.scrollTop = Number(navY) || 0;
+  if (pageY !== null) {
+    sessionStorage.removeItem('clinic-page-scroll');
+    requestAnimationFrame(() => window.scrollTo(0, Number(pageY) || 0));
+  }
+  document.querySelectorAll('.sidebar__nav a[href^="/"]').forEach(link => {
+    link.addEventListener('click', () => {
+      sessionStorage.setItem('clinic-sidebar-scroll', String(nav.scrollTop));
+      sessionStorage.setItem('clinic-page-scroll', String(window.scrollY));
+    });
+  });
+})();
+</script>
+</aside>

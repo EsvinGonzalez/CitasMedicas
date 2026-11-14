@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clínica San José — Iniciar sesión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+
+<div class="auth">
+
+  <!-- ===================== PANEL IZQUIERDO — IDENTIDAD ===================== -->
+  <aside class="auth__brand">
+    <svg class="brand-vitals" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path class="brand-vitals__line" d="M-20,210 L120,210 L145,210 L165,140 L190,270 L215,210 L260,210
+        L360,210 L385,210 L405,140 L430,270 L455,210 L500,210
+        L560,210 L620,210" />
+    </svg>
+    <div class="brand-glow"></div>
+
+    <div class="auth__brand-content">
+      <span class="brand-eyebrow">Clínica San José</span>
+      <h1>El cuidado de<br>tus pacientes,<br><em>en un solo lugar.</em></h1>
+      <p class="brand-copy">
+        Gestión de citas, expedientes e historial clínico con la
+        precisión que la medicina merece.
+      </p>
+
+      <ul class="brand-stats">
+        <li><strong>8</strong><span>especialidades</span></li>
+        <li><strong>20+</strong><span>médicos activos</span></li>
+        <li><strong>24/7</strong><span>disponibilidad</span></li>
+      </ul>
+    </div>
+
+    <span class="brand-footnote">Sistema de Gestión de Citas Médicas</span>
+  </aside>
+
+  <!-- ===================== PANEL DERECHO — FORMULARIO ===================== -->
+  <main class="auth__form-side">
+    <div class="auth__form-wrap">
+
+      <div class="auth__mark">
+        <span class="auth__mark-dot"></span>
+        <span>Panel de acceso</span>
+      </div>
+
+      <h2 id="titulo-form">Bienvenido de nuevo</h2>
+      <p class="auth__sub" id="subtitulo-form">Ingresa tus credenciales para continuar.</p>
+
+      <form id="form-login" class="auth-form">
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" required autocomplete="username" placeholder="tu@clinicasanjose.com">
+        </div>
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <p class="auth-error" id="login-error"></p>
+        <button type="submit" class="btn-primary">
+          <span>Ingresar</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+
+      <form id="form-2fa" class="auth-form is-hidden">
+        <div class="field">
+          <label for="token-2fa">Código de verificación</label>
+          <input type="text" id="token-2fa" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="000000" class="field--code">
+        </div>
+        <p class="auth-error" id="token-error"></p>
+        <button type="submit" class="btn-primary">
+          <span>Verificar</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+
+      <p class="auth__footer">
+        ¿No tienes cuenta? <a href="#" id="link-registro">Regístrate como paciente</a>
+      </p>
+    </div>
+  </main>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clínica San José — {{ seccion|title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=4) }}">
+</head>
+<body>
+<div class="app-shell">
+  {% include 'sidebar.html' %}
+
+  <div class="sheet">
+    <header class="chart-header">
+      <div class="chart-header__row">
+        <div class="clinic-id">
+          <span class="clinic-id__eyebrow">Módulo operativo</span>
+          <h1 id="module-title">{{ seccion|title }}</h1>
+          <p class="clinic-id__sub">Gestión de {{ seccion }}</p>
+        </div>
+        <div class="chart-header__meta">
+          <div class="meta-block">
+            <span class="meta-block__label">Fecha del sistema</span>
+            <span class="meta-block__value" id="fecha-actual">—</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="modulo-grid">
+      <section class="panel panel--wide" id="panel-formulario">
+        <header class="panel__head">
+          <div class="panel__title">
+            <span class="panel__eyebrow">{{ 'Filtros' if seccion == 'auditoria' else 'Formulario' }}</span>
+            <h2 id="section-title">{{ 'Buscar en el registro' if seccion == 'auditoria' else 'Filtros y resumen' if seccion == 'reportes' else 'Registrar ' ~ seccion }}</h2>
+          </div>
+          {% if seccion == 'citas' %}
+          <a class="new-appointment-link" href="#form-cita">+ Agregar nueva cita</a>
+          {% endif %}
+        </header>
+        <div class="panel__body">
+          <div id="form-container"></div>
+          <div id="extra-panel"></div>
+        </div>
+      </section>
+
+      <section class="panel panel--wide">
+        <header class="panel__head">
+          <div class="panel__title">
+          <span class="panel__eyebrow">{{ 'Desglose del período' if seccion == 'reportes' else 'Listado' }}</span>
+          <h2>{{ 'Actividad reciente' if seccion == 'auditoria' else 'Citas por especialidad' if seccion == 'reportes' else 'Registros recientes' }}</h2>
+          </div>
+          {% if seccion not in ['auditoria', 'reportes'] and session.get('rol') != 'paciente' %}
+          <button class="table-action" id="exportar-listado-pdf" type="button">Exportar PDF</button>
+          <button class="table-action" id="exportar-listado-csv" type="button">Exportar CSV</button>
+          {% endif %}
+        </header>
+        <div class="panel__body panel__body--table{% if seccion == 'auditoria' %} audit-table-wrap{% endif %}">
+          <table class="citas-table{% if seccion == 'auditoria' %} audit-table{% endif %}">
+            <thead>
+              <tr id="tabla-head"></tr>
+            </thead>
+            <tbody id="tabla-registros">
+              <tr><td colspan="6" class="tabla-vacia">Cargando registros…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        {% if seccion == 'auditoria' %}
+        <footer id="audit-paginacion" class="audit-pagination"></footer>
+        {% endif %}
+      </section>
+    </main>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/modulos.js', v=8) }}"></script>
+</body>
+</html>

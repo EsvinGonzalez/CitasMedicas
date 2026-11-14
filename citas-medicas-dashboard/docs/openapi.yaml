@@ -1,0 +1,235 @@
+openapi: 3.0.3
+info:
+  title: Clínica San José — API REST
+  version: "1.0.0"
+  description: |
+    API del sistema de gestión de citas, expedientes, telemedicina, facturación y auditoría.
+    Autenticación por sesión (cookie) tras POST /api/auth/login.
+servers:
+  - url: http://127.0.0.1:5000
+    description: Desarrollo local
+tags:
+  - name: Auth
+  - name: Pacientes
+  - name: Medicos
+  - name: Citas
+  - name: Expedientes
+  - name: Recetas
+  - name: Telemedicina
+  - name: Facturacion
+  - name: Reportes
+paths:
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          description: Sesión iniciada o requiere 2FA
+  /api/auth/verificar-2fa:
+    post:
+      tags: [Auth]
+      summary: Verificar TOTP, correo o SMS
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: { type: string }
+      responses:
+        "200": { description: OK }
+  /api/auth/2fa/iniciar:
+    post:
+      tags: [Auth]
+      summary: Generar secreto TOTP
+      responses:
+        "200": { description: otpauth URI }
+  /api/pacientes:
+    get:
+      tags: [Pacientes]
+      summary: Listar pacientes
+      responses:
+        "200": { description: Lista }
+    post:
+      tags: [Pacientes]
+      summary: Crear paciente
+      responses:
+        "201": { description: Creado }
+  /api/medicos:
+    get:
+      tags: [Medicos]
+      responses:
+        "200": { description: Lista }
+    post:
+      tags: [Medicos]
+      responses:
+        "201": { description: Creado }
+  /api/especialidades:
+    get:
+      tags: [Medicos]
+      responses:
+        "200": { description: Lista }
+    post:
+      tags: [Medicos]
+      responses:
+        "201": { description: Creado }
+  /api/citas:
+    get:
+      tags: [Citas]
+      responses:
+        "200": { description: Lista }
+    post:
+      tags: [Citas]
+      summary: Agendar cita (predice no-show y notifica)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [paciente_id, medico_id, fecha, hora]
+              properties:
+                paciente_id: { type: integer }
+                medico_id: { type: integer }
+                fecha: { type: string }
+                hora: { type: string }
+                motivo: { type: string }
+                modalidad: { type: string, enum: [presencial, telemedicina] }
+      responses:
+        "201": { description: Creada }
+  /api/citas/{id}/cancelar:
+    patch:
+      tags: [Citas]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: Cancelada }
+  /api/expedientes/paciente/{paciente_id}:
+    get:
+      tags: [Expedientes]
+      parameters:
+        - in: path
+          name: paciente_id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: Ficha + evoluciones (queda auditado) }
+    put:
+      tags: [Expedientes]
+      parameters:
+        - in: path
+          name: paciente_id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: Actualizado }
+  /api/expedientes/paciente/{paciente_id}/evolucion:
+    post:
+      tags: [Expedientes]
+      parameters:
+        - in: path
+          name: paciente_id
+          required: true
+          schema: { type: integer }
+      responses:
+        "201": { description: Nota clínica }
+  /api/recetas:
+    get:
+      tags: [Recetas]
+      responses:
+        "200": { description: Lista }
+    post:
+      tags: [Recetas]
+      responses:
+        "201": { description: Emitida }
+  /api/recetas/{id}/pdf:
+    get:
+      tags: [Recetas]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: PDF }
+  /api/telemedicina:
+    get:
+      tags: [Telemedicina]
+      responses:
+        "200": { description: Salas de espera }
+  /api/telemedicina/{cita_id}/asistencia:
+    post:
+      tags: [Telemedicina]
+      parameters:
+        - in: path
+          name: cita_id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: Confirma asistencia y abre Jitsi }
+  /api/telemedicina/{cita_id}/consentimiento:
+    post:
+      tags: [Telemedicina]
+      responses:
+        "200": { description: Consentimiento de grabación }
+  /api/facturas:
+    get:
+      tags: [Facturacion]
+      responses:
+        "200": { description: Lista }
+    post:
+      tags: [Facturacion]
+      responses:
+        "201": { description: Factura con copago si hay seguro }
+  /api/pagos/checkout:
+    post:
+      tags: [Facturacion]
+      summary: Cobro simulado (equivalente a Stripe Checkout)
+      responses:
+        "200": { description: Pagado }
+  /api/payments/stripe/webhook:
+    post:
+      tags: [Facturacion]
+      responses:
+        "200": { description: Evento recibido }
+  /api/kpis:
+    get:
+      tags: [Reportes]
+      responses:
+        "200": { description: Indicadores }
+  /api/reportes/exportar.pdf:
+    get:
+      tags: [Reportes]
+      responses:
+        "200": { description: PDF }
+  /api/reportes/exportar.csv:
+    get:
+      tags: [Reportes]
+      responses:
+        "200": { description: CSV/Excel }
+  /api/reportes/auditoria:
+    get:
+      tags: [Reportes]
+      summary: Solo admin y auditor
+      responses:
+        "200": { description: Bitácora inmutable }
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+security:
+  - cookieAuth: []
